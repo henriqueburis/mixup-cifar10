@@ -38,7 +38,7 @@ parser.add_argument('--no-augment', dest='augment', action='store_false',
 parser.add_argument('--decay', default=1e-4, type=float, help='weight decay')
 parser.add_argument('--alpha', default=1., type=float,
                     help='mixup interpolation coefficient (default: 1)')
-args = parser.parse_args()
+args, unknown = parser.parse_known_args()
 
 use_cuda = torch.cuda.is_available()
 
@@ -155,7 +155,7 @@ def train(epoch):
                                                       targets_a, targets_b))
         outputs = net(inputs)
         loss = mixup_criterion(criterion, outputs, targets_a, targets_b, lam)
-        train_loss += loss.data[0]
+        train_loss += loss.item()
         _, predicted = torch.max(outputs.data, 1)
         total += targets.size(0)
         correct += (lam * predicted.eq(targets_a.data).cpu().sum().float()
@@ -185,7 +185,7 @@ def test(epoch):
         outputs = net(inputs)
         loss = criterion(outputs, targets)
 
-        test_loss += loss.data[0]
+        test_loss += loss.item()
         _, predicted = torch.max(outputs.data, 1)
         total += targets.size(0)
         correct += predicted.eq(targets.data).cpu().sum()
